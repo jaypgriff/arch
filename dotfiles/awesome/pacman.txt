@@ -1,0 +1,4 @@
+awesome
+picom
+lxappearance
+vicious

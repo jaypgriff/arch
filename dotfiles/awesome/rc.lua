@@ -451,20 +451,20 @@ awful.rules.rules = {
     -- Floating windows
     { rule_any = {
         instance = {
-          "copyq",
-          "pinentry",
+            "copyq",
+            "pinentry",
         },
         class = {
-          "Blueman-manager",
-          "Pavucontrol",
-	  "Xfce4-notes",
-          "Xfce4-power-manager-settings",
+            "Blueman-manager",
+            "Pavucontrol",
+	        "Xfce4-notes",
+            "Xfce4-power-manager-settings",
         },    
         name = {
-          "Event Tester",  -- xev.
+            "Event Tester",  -- xev.
         },
         role = {
-          "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
+            "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
         }
       }, properties = { floating = true }},
     

@@ -1,0 +1,13 @@
+#!/bin/zsh
+WINEPREFIX=/home/jamie/wineprefixes/blizzard 
+WINEFSYNC=1 
+STAGING_SHARED_MEMORY=1 
+DXVK_ENABLE_NVAPI=1
+WINEDLLOVERRIDES=nvapi,nvapi64,dxgi=n
+DXVK_STATE_CACHE_PATH=$WINEPREFIX
+VKD3D_CONFIG=dxr,dxr11
+__GL_DXVK_OPTIMIZATIONS=1
+__GL_SHADER_DISK_CACHE=1
+__GL_SHADER_DISK_CACHE_PATH=$WINEPREFIX
+
+/opt/wine-tkg-wow-opt/bin/wine /home/jamie/wineprefixes/blizzard/drive_c/Program\ Files\ \(x86\)/Battle.net/Battle.net\ Launcher.exe

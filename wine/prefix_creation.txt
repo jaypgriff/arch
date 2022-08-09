@@ -1,0 +1,41 @@
+Random Notes For Wine Prefixes
+
+mkdir /path/to/dir
+WINEPREFIX=/path/to/dir /path/to/wine/bin/winecfg (set to windows 10 if needed or not compiled into wine-tkg)
+WINEPREFIX=/path/to/dir /path/to/wine/bin/winetricks -q vcrun2017 (check with games website for c++ versions and possible dotnet versions and fonts etc)
+
+building dxvk from https://github.com/doitsujin/dxvk
+
+after dxvk compiled, change into dxvk-master dir and run
+WINEPREFIX=/path/to/dir ./dxvk_install.sh (for d3d9-11)
+WINEPREFIX=/path/to/dir ./vkd3d-proton.sh (for d3d12 proton)
+
+copy game files into wineprefix Program Files system32/syswow64 folder as appropriate
+
+for esync WINEESYNC=1
+for fsync WINEFSYNC=1
+for winesync WINEESYNC=0 WINEFSYNC=0 WINEFUTEX2=0
+for dxvk HUD DXVK_HUD=1
+
+for TkG dxvk-tools https://github.com/Frogging-Family/dxvk-tools
+
+./updxvk build to build dxvk
+./updxvk /path/to/prefix to install dxvk into wineprefix
+./updxvk lutris to install into lutris runtime
+
+./upvkd3d-proton build to build vkd3d-proton
+./upvkd3d-proton lutris to install vkd3d-proton into lutris runtime
+to manually install copy x64/d3d12.dll and x86/d3d12.dll from build dir into system32 and syswow64 prefix folders respectively then,
+use winecfg to set to native or use WINEDLLOVERRIDE=d3d12=n env var
+
+for dxvk-nvapi (needs dxvk and needs to use its dxgi)
+
+build using instructions from https://github.com/jp7677/dxvk-nvapi
+for lutris copy dxvk-master dir once built into lutris runtime
+for wine copy x86/nvapi.dll and x64/nvapi64.dll into syswow64 and system32 prefix folder respectively
+set to native using winecfg or WINEDLLOVERRIDES=nvapi,nvapi64=n env var
+disable dxvk nvapiHack with DXVK_ENABLE_NVAPI=1 env var
+
+for DLSS and RTX (needs vkd3d-proton)
+to enable DLSS and RTX symlink /usr/lib/nvidia/wine/{nvngx.dll,_nvngx.dll} into system32 prefix folder
+use VKD3D_CONFIG=dxr,dxr11 env var 

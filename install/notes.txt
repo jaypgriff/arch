@@ -1,0 +1,168 @@
+Installation notes for Arch Linux
+
+1 - change keyboard layout:
+     $ loadkeys uk
+
+2 - setup wireless connection:
+     $ iwctl
+     > device list
+     > station [device] scan
+     > station [device] get-networks
+     > station [device] connect ssid
+     > station [device] show
+     > exit
+
+3 - check there is an ip with ip a
+     $ ip a
+
+4 - wipe the disk:
+     $ wipefs -a /dev/nvme0n1
+     $ sgdisk --zap-all --clear /dev/nvme0n1
+
+5 - set system time:
+     $ timedatectl set-ntp true
+     $ pacman -Sy
+     $ pacman -S reflector
+     $ reflector -c 'United Kingdom' -a 6 --sort rate --save /etc/pacman.d/mirrorlist
+     $ pacman -Syy
+
+6 - partition disk:
+     $ gdisk /dev/nvme0n1
+
+     create first partion +128M boot partition with code ef00 for efi boot 
+     create second partition with remaining disk space default linux code
+     check partitions with lsblk
+
+     $ lsblk
+
+7 - format partitions:
+     $ mkfs.fat -F32 /dev/nvme0n1p1
+     $ mkfs.btrfs /dev/nvme0n1p2
+
+8 - mount the new root partition and create btrfs Subvolumes:
+     $ mount /dev/nvme0n1p2 /mnt
+     $ cd /mnt
+
+     $ btrfs subvolume create root
+     $ btrfs subvolume create home
+     $ btrfs subvolume create pkg
+     $ btrfs subvolume create log
+     
+
+9 - leave the /mnt directory (cd /) and unmount it so we can remount the btrfs subvolumes with the options we need
+     $ cd
+     $ umount /mnt
+
+10 - now mount each of the new subvolumes to thier moint points
+     $ mkdir -p /mnt/{efi,var/cache/pacman/pkg,btrfs,home,var/log}
+     $ mount -o noatime,nodiratime,compress-force=zstd:1,ssd,discard=async,space_cache=v2,subvol=/ /dev/nvme0n1p2 /mnt/btrfs
+     $ mount -o noatime,nodiratime,compress-force=zstd:1,ssd,discard=async,space_cache=v2,autodefrag,subvol=root /dev/nvme0n1p2 /mnt
+     $ mount -o noatime,nodiratime,compress-force=zstd:1,ssd,discard=async,space_cache=v2,autodefrag,subvol=home /dev/nvme0n1p2 /mnt/home
+     $ mount -o noatime,nodiratime,compress-force=zstd:1,ssd,discard=async,space_cache=v2,autodefrag,subvol=pkg /dev/nvme0n1p2 /mnt/var/cache/pacman/pkg
+     $ mount -o noatime,nodiratime,compress-force=zstd:1,ssd,discard=async,space_cache=v2,autodefrag,subvol=log /dev/nvme0n1p2 /mnt/var/log
+
+
+12 - mount esp
+     $ mount /dev/nvme0n1p1 /mnt/efi
+
+13 - check with lsblk
+     $ lsblk
+
+14 - use pacstrap to install the base system files
+     $ pacstrap /mnt base linux linux-headers linux-firmware neovim git intel-ucode btrfs-progs zsh zsh-autosuggestions zsh-completions zsh-syntax-highlighting
+
+15 - create the /etc/fstab file with entries for each of the mounted btrfs subvolumes and their options using genfstab
+     $ genfstab -U /mnt /mnt/etc/fstab
+
+16 - use arch-chroot to chroot into the installation environment
+     $ arch-chroot /mnt
+
+18 - create locales, uncomment en_GB.UTF-8 and save/exit
+     $ nvim /etc/locale.gen
+     $ locale-gen
+
+19 - set the system time and clock
+     $ ln -s /usr/share/zoneinfo/Europe/London  /etc/localtime
+     $ hwclock --systohc
+
+20 - set the system language
+     $ echo "LANG=en_GB.UTF-8" >> /etc/locale.conf
+
+21 - set the keyboard map
+     $ echo "KEYMAP=uk" >> /etc/vconsole.conf
+
+22 - add entires to /etc/hosts
+     $ echo "arch" >> /etc/hostname
+     $ echo "127.0.0.1 localhost" >> /etc/hosts
+     $ echo "::1       localhost" >> /etc/hosts
+     $ echo "127.0.1.1 arch.localdomain arch" >> /etc/hosts
+
+23 - change root password
+     $ passwd
+
+24 - create new user and change its password
+     $ useradd -m -G wheel -s /bin/zsh jamie
+     $ passwd jamie
+
+25 - edit visudo to uncomment wheel group
+     $ EDITOR=nvim visudo
+
+26 - install some base packages
+     $ pacman -S efibootmgr refind networkmanager dialog wpa_supplicant base-devel xdg-user-dirs xdg-utils inetutils bluez bluez-utils pipewire wireplumber pipewire-alsa pipewire-jack pipewire-pulse openssh rsync acpi acpid
+
+27 - install video card drivers for nvidia
+     $ pacman -S nvidia-dxvk nvidia-utils nvidia-settings
+
+28 - edit the /etc/mkinitcpio file to add modules for btrfs and nvidia - also remove fsck from hooks
+     $ vim /etc/mkinitcpio.conf
+
+29 - generate the new initcpio file
+     $ mkinitcpio -P
+
+30 - install and setup the refind bootloader
+     $ refind-install
+     
+31 - use refind config files from github and copy to /ef/EFI/refind/refind.conf
+
+32 - determine the UUID/PARTUUID in nvim and add to refind.conf file
+     :! r blkid -s UUID -o value /dev/nvme0n1p2 (for UUID) or,
+     $ blkid | grep -i p2 | awk '{ print $2 }' >> /efi/EFI/refind/refind.conf (from shell) or,
+     :1 r blkid -s PARTUUID -o value /dev/nvme0n1p2 
+
+35 - enable the new system services for rebooting
+     $ systemctl enable NetworkManager
+     $ systemctl enable bluetooth
+     $ systemctl enable sshd
+     $ systemctl enable reflector.timer
+     $ systemctl enable fstrim.timer
+     $ systemctl enable acpid
+
+37 - exit the chroot environment, unmount the filesystems and reboot into the new base system
+     $ exit
+     $ umount -R /mnt 
+     $ reboot
+
+38 - configure network connection for wifi again
+     $ nmtui
+
+39 - sync repos and system time again
+     $ pacman -Sy
+     $ sudo timedatectl set-ntp true
+     $ sudo hwclock --systohc
+
+40 - install paru aur helper
+     $ mkdir Pkg && cd Pkg
+     $ git clone https://aur.archlinux.org/paru-bin
+     $ cd paru-bin
+     $ mkpkg -si
+     $ cd
+
+41 - install the KDE desktop environment and display manager
+     $ pacman -Sy xorg plasma kde-applications plasma-nm sddm
+       or install xfce4 
+     $ pacman -Sy xorg xfce4 network-manager-applet chromium plata-gtk-theme papirus-icon-theme xfce4-goodies
+
+42 - enable display manger service for KDE if installed
+     $ sudo systemctl enable sddm.service 
+
+43 - Reboot the system and log in :)

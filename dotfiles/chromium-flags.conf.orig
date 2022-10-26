@@ -1,8 +1,0 @@
---use-gl=desktop
---enable-raw-draw
---enable-zero-copy
---enable-gpu-rasterization
---enable-accelerated-video-decode
---enable-features=VaapiVideoEncoder,VaapiVideoDecoder,CanvasOopRasterization
---disable-features=UseChromeOSDirectVideoDecoder
---ignore-gpu-blocklist

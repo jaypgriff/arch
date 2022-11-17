@@ -1,0 +1,10 @@
+export WINEPREFIX=/home/jamie/wineprefixes/riot
+export WINE_LARGE_ADDRESS_AWARE=1
+export STAGING_SHARED_MEMORY=1
+export __GL_SHADER_DISK_CACHE=1
+export __GL_SHADER_DISK_CACHE_PATH="$WINEPREFIX"
+export __GL_THREADED_OPTIMIZATIONS=1
+export DXVK_STATE_CACHE=1
+export DXVK_STATE_CACHE_PATH=/home/jamie/wineprefixes/riot
+
+WINEPREFIX=/home/jamie/wineprefixes/riot WINEESYNC=1 WINEFSYNC=1 /opt/wine-lol/bin/wine "/home/jamie/wineprefixes/riot/league-of-legends/drive_c/Riot Games/Riot Client/RiotClientServices.exe" --locale=en_US --launch-product=league_of_legends --launch-patchline=live

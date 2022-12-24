@@ -1,0 +1,65 @@
+Create Both
+Expunge Both
+Remove Both
+Sync All
+SyncState *
+MaxMessages 0
+ExpireUnread no
+
+IMAPStore gmail-remote
+Host imap.gmail.com
+Port 993
+User gmailaccount@gmail.com
+PassCmd "pass gmail"
+AuthMechs LOGIN
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+MaildirStore gmail-local
+Subfolders Verbatim
+Path /home/jamie/.local/share/mail/
+Inbox /home/jamie/.local/share/mail/INBOX
+
+Channel gmail-inbox
+Far :gmail-remote:
+Near :gmail-local:
+Patterns "INBOX"
+
+Channel gmail-all
+Far :gmail-remote:"[Gmail]/All Mail"
+Near :gmail-local:All
+
+Channel gmail-archive
+Far :gmail-remote:"[Gmail]/Important"
+Near :gmail-local:Archive
+
+Channel gmail-drafts
+Far :gmail-remote:"[Gmail]/Drafts"
+Near :gmail-local:Drafts
+
+Channel gmail-flagged
+Far :gmail-remote:"[Gmail]/Starred"
+Near :gmail-local:Flagged
+
+Channel gmail-junk
+Far :gmail-remote:"[Gmail]/Spam"
+Near :gmail-local:Junk
+
+Channel gmail-sent
+Far :gmail-remote:"[Gmail]/Sent Mail"
+Near :gmail-local:Sent
+
+Channel gmail-trash
+Far :gmail-remote:"[Gmail]/Bin"
+Near :gmail-local:Trash
+
+Group gmail
+Channel gmail-inbox
+Channel gmail-all
+Channel gmail-archive
+Channel gmail-drafts
+Channel gmail-flagged
+Channel gmail-junk
+Channel gmail-sent
+Channel gmail-trash
+#End Profile

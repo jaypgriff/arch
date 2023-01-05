@@ -1,0 +1,10 @@
+[Unit]
+Description=Mail indexing service
+
+[Timer]
+OnBootSec=60
+OnUnitActiveSec=60m
+Unit=notmuch.service
+
+[Install]
+WantedBy=timers.target

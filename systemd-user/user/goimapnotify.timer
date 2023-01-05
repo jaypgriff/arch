@@ -1,0 +1,9 @@
+[Unit]
+Description=Remote imap mail notify service
+
+[Timer]
+OnBootSec=30
+Unit=goimapnotify@gmail.service
+
+[Install]
+WantedBy=timers.target
